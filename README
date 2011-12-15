@@ -1,0 +1,10 @@
+Wanted to make a JavaScript that Bob could add to his entry pages to help control user input.
+
+The goal is to do a few tasks:
+ - Reduce the list of options in a game to only the teams remaining
+ - Auto backfill a team as winner an earlier round if they win a later round
+ - Make sure the form can't be submitted until all the games have been marked
+ - Learn a few more Closure skills.
+
+Pools will be up at:
+  http://www.stanford.edu/~rschaffe/ncaa/

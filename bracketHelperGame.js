@@ -121,6 +121,7 @@ bracketHelper.Game.prototype.updateElementWithName = function(aName) {
 			break;
 		}
 	}
+	// Handle the case where the name selected is not in the options
 	if (indexOfName == this.selectElement_.options.length) {
 		console.log("Name: " + aName + " not found in " + this.selectElement_.name);
 		for(var i = 0; i < this.selectElement_.options.length; i++){
@@ -128,6 +129,18 @@ bracketHelper.Game.prototype.updateElementWithName = function(aName) {
 		}
 		// The winner selected is not in the list.  Reset the selection to NONE.
 		indexOfName = 0;
+	}
+	// Handle the case where the name did not winn the prior round
+	if (this.priorGames_.length > 0) {
+		if (this.priorGames_[0].getSelectedWinner() != aName && this.priorGames_[1].getSelectedWinner() != aName) {
+			
+			console.log("Name: " + aName + " was not a prior round winner");
+			for(var i = 0; i < this.priorGames_.length; i++){
+				console.log("   Winner #" + i+ " was " + this.priorGames_[i].getSelectedWinner());
+			}
+			// The winner selected is not a prior round winner.  Reset the selection to NONE.
+			indexOfName = 0;
+		}
 	}
 	this.selectElement_.options.selectedIndex = indexOfName;
 };
@@ -160,11 +173,10 @@ bracketHelper.Game.prototype.whoMightAdvance = function() {
 bracketHelper.Game.prototype.updateOptions = function() {
 	// Save the info for the current round champion
 	//console.log("Update Options for " + this.selectElement_.name);
-	var winnerIndex = this.selectElement_.options.selectedIndex;
-	var winnerName = this.selectElement_.options[winnerIndex].text;
+	var winnerName = this.getSelectedWinner();
 	var mightAdvance = [];
 	// Look at my prior games for who might advance
-	for(var i=this.priorGames_.length-1; i>=0; i--) {
+	for(var i = this.priorGames_.length - 1; i >= 0; i--) {
 		// mightAdvance = mightAdvance.concat( this.priorGames_[i].whoMightAdvance() );
 		mightAdvance = goog.array.concat(mightAdvance, this.priorGames_[i].whoMightAdvance())
 	}
@@ -179,9 +191,10 @@ bracketHelper.Game.prototype.updateOptions = function() {
 /*
 * Callback for when a user selects a name for this select element.
 */
-bracketHelper.Game.prototype.winnerSelectedByUser = function(aName) {
+bracketHelper.Game.prototype.winnerSelectedByUser = function(e) {
 	//console.log("winnerSelectedByUser was called.")
 	this.updateNextGame();
+	this.fillWinnerBackwards(this.getSelectedWinner());
 };
 
 /*
@@ -198,6 +211,32 @@ bracketHelper.Game.prototype.updateNextGame = function() {
 	}
 };
 
+/*
+* Fills in the winner into prior rounds if necessary
+*/
+bracketHelper.Game.prototype.fillWinnerBackwards = function(winnerName) {
+	
+	if (!goog.array.contains(this.allOptions_, winnerName) ) {
+		return;  // Do nothing if this winner was never in my list of options
+	}
+	
+	if (this.priorGames_.length > 0) {
+		// Fill in this winner into the appropriate prior game
+		for (var i = 0; i < this.priorGames_.length; i++) {
+			this.priorGames_[i].fillWinnerBackwards(winnerName);
+		}
+	
+		// Update my options based on the prior games
+		var mightAdvance = [];
+		for(var i = this.priorGames_.length - 1; i >= 0; i--) {
+			mightAdvance = goog.array.concat(mightAdvance, this.priorGames_[i].whoMightAdvance())
+		}
+		this.setOptionsWithNames(mightAdvance);		
+	}
+
+	this.updateElementWithName(winnerName);	
+};
+
 /** @enum {string} */
 bracketHelper.Game.EventType = {
 	TOURNAMENT_UPDATED: goog.events.getUniqueId('tournament_updated')
@@ -206,6 +245,16 @@ bracketHelper.Game.EventType = {
 /*----------------------------------------------------------------
 * Getters / Setters that could be omitted
 *-----------------------------------------------------------------*/
+
+/*
+* Get the name of the select element's selected text
+* @return {string}
+*/
+bracketHelper.Game.prototype.getSelectedWinner = function() {
+	var winnerIndex = this.selectElement_.options.selectedIndex;
+	return this.selectElement_.options[winnerIndex].text;
+};
+
 
 /*
 * Get the select element for this Game.

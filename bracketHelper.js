@@ -1,6 +1,7 @@
 goog.provide('bracketHelper.SelectUpdater');
 
 goog.require('goog.dom');
+goog.require('goog.dom.classes');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.array');
@@ -52,9 +53,13 @@ bracketHelper.SelectUpdater.prototype.init_ = function() {
 	}
 	
 	// Grab the last two input elements and assume they are the submit and reset buttons
-	var inputElements = goog.dom.getElementsByTagNameAndClass('input');
-	var submitButtonElement = inputElements(inputElements.length-2);
-	var resetButtonElement = inputElements(inputElements.length-1);
+//	var inputElements = goog.dom.getElementsByTagNameAndClass('input');
+//	var submitButtonElement = inputElements(inputElements.length-2);
+//	var resetButtonElement = inputElements(inputElements.length-1);
+	
+	var submitButtonElement = goog.dom.getElement('submit_button');
+	var resetButtonElement = goog.dom.getElement('clear_button');
+	
 	
 	// Create a goog.ui.Button control for the Submit Bracket button element
 	var submitButton = new goog.ui.Button(null /* content */);
@@ -73,6 +78,7 @@ bracketHelper.SelectUpdater.prototype.init_ = function() {
 		for (var i=1; i<this.games_.length; i++) {
 			this.games_[i].resetGame();
 		}
+		this.updateSelectElementClass();
 	}, false, this);
 	
 	// Listen for tournament updates
@@ -82,15 +88,12 @@ bracketHelper.SelectUpdater.prototype.init_ = function() {
 		submitButton.setEnabled(false);
 		if (remainingGames == 0) {
 			submitButton.setEnabled(true);
-		} else if (remainingGames < 4) {
-			for (var i=1; i<this.games_.length; i++) {
-				if (this.games_[i].getSelectElement().options.selectedIndex == 0) {
-					this.games_[i].getSelectElement().style.background = 'yellow';
-				}
-			}
 		}
+		this.updateSelectElementClass();
 		submitButton.setTooltip("" + remainingGames + " games still need to be selected.");
 	}, false, this);
+	
+	this.updateSelectElementClass();
 };
 
 /**
@@ -102,8 +105,7 @@ bracketHelper.SelectUpdater.prototype.countRemainingNones = function() {
 	for (var i=1; i<this.games_.length; i++) {
 		if (this.games_[i].getSelectElement().options.selectedIndex == 0) {
 			nonesRemaining += 1;
-			this.games_[i].getSelectElement().style.background = '';
-		}
+		}	
 	}
 	return nonesRemaining;
 };
@@ -119,6 +121,18 @@ bracketHelper.SelectUpdater.compareSelectElements = function(selectElement1, sel
 	}
 };
 
+/** Compare two games for the purpose of sorting. */
+bracketHelper.SelectUpdater.prototype.updateSelectElementClass = function() {
+	for (var i=1; i<this.games_.length; i++) {
+		if (this.games_[i].getSelectElement().options.selectedIndex == 0) {
+			//this.games_[i].getSelectElement().style.background = 'yellow';
+			goog.dom.classes.set(this.games_[i].getSelectElement(), "game-none");
+		} else {
+			//this.games_[i].getSelectElement().style.background = '';
+			goog.dom.classes.set(this.games_[i].getSelectElement(), "game-completed");
+		}
+	}
+};
 
 window.onload = function() {
 	new bracketHelper.SelectUpdater();

@@ -192,9 +192,8 @@ bracketHelper.Game.prototype.updateOptions = function() {
 * Callback for when a user selects a name for this select element.
 */
 bracketHelper.Game.prototype.winnerSelectedByUser = function(e) {
-	//console.log("winnerSelectedByUser was called.")
-	this.updateNextGame();
 	this.fillWinnerBackwards(this.getSelectedWinner());
+	this.updateNextGame();
 };
 
 /*

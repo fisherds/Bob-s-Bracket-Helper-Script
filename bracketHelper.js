@@ -23,7 +23,7 @@ goog.require('bracketHelper.Game');
 bracketHelper.SelectUpdater = function() {		
 	/**
 	* All of the select elements in order from the first to final round
-	* @type {!Array.<Element>}
+	* @type {!Array.<bracketHelper.Game>}
 	* @private
 	*/
 	this.games_ = [];
@@ -38,7 +38,7 @@ bracketHelper.SelectUpdater = function() {
 bracketHelper.SelectUpdater.prototype.init_ = function() {
 	// Prepare the select elements
 	var selectElements = goog.dom.getElementsByTagNameAndClass('select');
-	selectElementsMutableCopy = goog.array.clone(selectElements);
+	var selectElementsMutableCopy = goog.array.clone(selectElements);
 	goog.array.sort(selectElementsMutableCopy, bracketHelper.SelectUpdater.compareSelectElements);
 	goog.array.insertAt(selectElementsMutableCopy, null, 0);
 
@@ -49,7 +49,7 @@ bracketHelper.SelectUpdater.prototype.init_ = function() {
 	
 	goog.array.insert(this.games_, finalGame);
 	for (var i=2; i<selectElementsMutableCopy.length; i++) {
-		goog.array.insert(this.games_, new bracketHelper.Game(selectElementsMutableCopy[i], this.games_[parseInt(i/2)]));
+		goog.array.insert(this.games_, new bracketHelper.Game(selectElementsMutableCopy[i], this.games_[parseInt(i/2, 10)]));
 	}
 	
 	// Grab the last two input elements and assume they are the submit and reset buttons

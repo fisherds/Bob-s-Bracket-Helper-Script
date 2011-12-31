@@ -3,6 +3,8 @@ goog.provide('bracketHelper.Game');
 goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.events.EventTarget');
+goog.require('goog.debug');
+goog.require('goog.debug.Logger');
 
 /**
 * @fileoverview Represents a game in the tournament.  Provides convenient methods to
@@ -71,6 +73,12 @@ bracketHelper.Game.prototype.init_ = function() {
 };
 
 /**
+* @type {goog.debug.Logger}
+* @protected
+*/
+bracketHelper.Game.prototype.logger = goog.debug.Logger.getLogger('bracketHelper.Game');
+
+/**
 * @param priorGame 
 */
 bracketHelper.Game.prototype.addChild = function(priorGame) {
@@ -123,9 +131,9 @@ bracketHelper.Game.prototype.updateElementWithName = function(aName) {
 	}
 	// Handle the case where the name selected is not in the options
 	if (indexOfName == this.selectElement_.options.length) {
-		console.log("Name: " + aName + " not found in " + this.selectElement_.name);
+		this.logger.info("Name: " + aName + " not found in " + this.selectElement_.name);
 		for(var i = 0; i < this.selectElement_.options.length; i++){
-			console.log("   Option #" + i+ " was " + this.selectElement_.options[i].text);
+			this.logger.info("   Option #" + i+ " was " + this.selectElement_.options[i].text);
 		}
 		// The winner selected is not in the list.  Reset the selection to NONE.
 		indexOfName = 0;
@@ -134,9 +142,9 @@ bracketHelper.Game.prototype.updateElementWithName = function(aName) {
 	if (this.priorGames_.length > 0) {
 		if (this.priorGames_[0].getSelectedWinner() != aName && this.priorGames_[1].getSelectedWinner() != aName) {
 			
-			console.log("Name: " + aName + " was not a prior round winner");
+			this.logger.info("Name: " + aName + " was not a prior round winner");
 			for(var i = 0; i < this.priorGames_.length; i++){
-				console.log("   Winner #" + i+ " was " + this.priorGames_[i].getSelectedWinner());
+				this.logger.info("   Winner #" + i+ " was " + this.priorGames_[i].getSelectedWinner());
 			}
 			// The winner selected is not a prior round winner.  Reset the selection to NONE.
 			indexOfName = 0;
@@ -172,7 +180,6 @@ bracketHelper.Game.prototype.whoMightAdvance = function() {
 */
 bracketHelper.Game.prototype.updateOptions = function() {
 	// Save the info for the current round champion
-	//console.log("Update Options for " + this.selectElement_.name);
 	var winnerName = this.getSelectedWinner();
 	var mightAdvance = [];
 	// Look at my prior games for who might advance

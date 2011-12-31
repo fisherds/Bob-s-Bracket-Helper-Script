@@ -4,6 +4,11 @@
 # Note: Not using this flag at present due to a Closure Library error in goog.debug
 #--compiler_flags="--jscomp_error=checkTypes" \
 
+runpath="closure"
+if [[ ! "$PWD" =~ ${runpath}$ ]]; then
+	echo "You must run this script from the ${runpath} directory."
+	exit 1
+fi
 
 closure-library/closure/bin/build/closurebuilder.py \
 --root=closure-library \
